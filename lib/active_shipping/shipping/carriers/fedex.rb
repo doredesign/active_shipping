@@ -89,6 +89,8 @@ module ActiveMerchant
 
       TransitTimes = ["UNKNOWN","ONE_DAY","TWO_DAYS","THREE_DAYS","FOUR_DAYS","FIVE_DAYS","SIX_DAYS","SEVEN_DAYS","EIGHT_DAYS","NINE_DAYS","TEN_DAYS","ELEVEN_DAYS","TWELVE_DAYS","THIRTEEN_DAYS","FOURTEEN_DAYS","FIFTEEN_DAYS","SIXTEEN_DAYS","SEVENTEEN_DAYS","EIGHTEEN_DAYS"]
 
+      TransitTimeServiceTypes = ['FEDEX_GROUND', 'GROUND_HOME_DELIVERY']
+
       # FedEx tracking codes as described in the FedEx Tracking Service WSDL Guide
       # All delays also have been marked as exceptions
       TRACKING_STATUS_CODES = HashWithIndifferentAccess.new({
@@ -276,8 +278,10 @@ module ActiveMerchant
           is_saturday_delivery = rated_shipment.get_text('AppliedOptions').to_s == 'SATURDAY_DELIVERY'
           service_type = is_saturday_delivery ? "#{service_code}_SATURDAY_DELIVERY" : service_code
           
-          transit_time = rated_shipment.get_text('TransitTime').to_s if service_code == "FEDEX_GROUND"
-          max_transit_time = rated_shipment.get_text('MaximumTransitTime').to_s if service_code == "FEDEX_GROUND"
+          if TransitTimeServiceTypes.include? service_code
+            transit_time = rated_shipment.get_text('TransitTime').to_s 
+            max_transit_time = rated_shipment.get_text('MaximumTransitTime').to_s
+          end
 
           delivery_timestamp = rated_shipment.get_text('DeliveryTimestamp').to_s
 
