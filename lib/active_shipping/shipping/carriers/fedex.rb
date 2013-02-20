@@ -175,7 +175,7 @@ module ActiveMerchant
           root_node << XmlNode.new('VariableOptions', 'SATURDAY_DELIVERY')
           
           root_node << XmlNode.new('RequestedShipment') do |rs|
-            rs << XmlNode.new('ShipTimestamp', Time.now)
+            rs << XmlNode.new('ShipTimestamp', options[:ship_timestamp] || Time.now)
             rs << XmlNode.new('DropoffType', options[:dropoff_type] || 'REGULAR_PICKUP')
             rs << XmlNode.new('PackagingType', options[:packaging_type] || 'YOUR_PACKAGING')
             
@@ -289,7 +289,8 @@ module ActiveMerchant
           #if there's no delivery timestamp but we do have a transit time, use it
           if delivery_timestamp.blank? and transit_time.present?
             transit_range = parse_transit_times([transit_time,max_transit_time.presence || transit_time])
-            delivery_range = [Date.today + transit_range[0], Date.today + transit_range[1]]
+            ship_date = options[:ship_timestamp] || Date.today
+            delivery_range = [ship_date + transit_range[0], ship_date + transit_range[1]]
           else
             delivery_range = [delivery_timestamp,delivery_timestamp]
           end
